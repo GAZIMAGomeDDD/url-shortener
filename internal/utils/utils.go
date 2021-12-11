@@ -1,6 +1,10 @@
 package utils
 
-import "math/rand"
+import (
+	"fmt"
+	"math/rand"
+	"net/url"
+)
 
 const (
 	asciiLowercase = "abcdefghijklmnopqrstuvwxyz"
@@ -17,4 +21,14 @@ func GenerateSlug() string {
 	}
 
 	return string(s)
+}
+
+func ValidateURL(u string) error {
+	_, err := url.ParseRequestURI(u)
+	if err != nil {
+		return fmt.Errorf("'%s' is a invalid url", u)
+	}
+
+	return nil
+
 }

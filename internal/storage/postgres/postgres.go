@@ -2,6 +2,7 @@ package postgres
 
 import (
 	"context"
+	"fmt"
 
 	"github.com/GAZIMAGomeDDD/url-shortener/internal/utils"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -23,7 +24,18 @@ type Store struct {
 	pool *pgxpool.Pool
 }
 
-func (s *Store) InitSchema(ctx context.Context) error {
+func NewStore(ctx context.Context, db *pgxpool.Pool) (*Store, error) {
+	s := new(Store)
+	s.pool = db
+
+	if err := s.initSchema(ctx); err != nil {
+		return nil, err
+	}
+
+	return s, nil
+}
+
+func (s *Store) initSchema(ctx context.Context) error {
 	if _, err := s.pool.Exec(ctx, DDL); err != nil {
 		return err
 	}
@@ -31,18 +43,18 @@ func (s *Store) InitSchema(ctx context.Context) error {
 	return nil
 }
 
-func (s *Store) CreateSlug(ctx context.Context, url string) (string, error) {
+func (s *Store) CreateShortenedURL(ctx context.Context, url string) (string, error) {
 	sql := `
-		WITH ins AS (
+		WITH row AS (
 			INSERT INTO shortened_urls  (slug, url)
 			VALUES ($1, $2)
 			ON CONFLICT (url) DO NOTHING
 			RETURNING *
 		)
-		SELECT slug FROM ins
+		SELECT slug FROM row
 		UNION
 		SELECT slug FROM shortened_urls 
-		WHERE url = $1;
+		WHERE url = $2;
 	`
 
 	tx, err := s.pool.Begin(ctx)
@@ -54,6 +66,8 @@ func (s *Store) CreateSlug(ctx context.Context, url string) (string, error) {
 
 	slug := utils.GenerateSlug()
 	if err = tx.QueryRow(ctx, sql, slug, url).Scan(&slug); err != nil {
+		fmt.Println(err)
+
 		return "", err
 	}
 

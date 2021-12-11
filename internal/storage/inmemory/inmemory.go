@@ -24,7 +24,7 @@ func NewStore() *Store {
 	}
 }
 
-func (s *Store) CreateSlug(ctx context.Context, url string) (string, error) {
+func (s *Store) CreateShortenedURL(ctx context.Context, url string) (string, error) {
 	s.Lock()
 	defer s.Unlock()
 

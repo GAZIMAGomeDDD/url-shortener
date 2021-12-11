@@ -22,10 +22,12 @@ func NewServer(handler http.Handler) *Server {
 	}
 }
 
-func (s *Server) Run() error {
-	return s.httpServer.ListenAndServe()
+func (s *Server) Run() {
+	s.httpServer.ListenAndServe()
 }
 
-func (s *Server) Stop(ctx context.Context) error {
-	return s.httpServer.Shutdown(ctx)
+func (s *Server) Stop() {
+	ctx, cancel := context.WithTimeout(context.Background(), 2*time.Second)
+	s.httpServer.Shutdown(ctx)
+	cancel()
 }
