@@ -21,7 +21,7 @@ var (
 )
 
 func init() {
-	flag.StringVar(&store, "store", "in-memory", "store name")
+	flag.StringVar(&store, "store", "postgres", "store name")
 }
 
 func Run(ctx context.Context, wg *sync.WaitGroup) {
