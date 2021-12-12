@@ -29,7 +29,7 @@ func Run(ctx context.Context, wg *sync.WaitGroup) {
 
 	switch store {
 	case "postgres":
-		connString := "postgres://postgres:postgres@localhost:5432/postgres?sslmode=disable"
+		connString := "postgres://postgres:postgres@db:5432/postgres?sslmode=disable"
 
 		db, err := postgresdb.NewDB(ctx, connString)
 		if err != nil {
