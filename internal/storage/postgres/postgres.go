@@ -2,7 +2,6 @@ package postgres
 
 import (
 	"context"
-	"fmt"
 
 	"github.com/GAZIMAGomeDDD/url-shortener/internal/utils"
 	"github.com/jackc/pgx/v4/pgxpool"
@@ -21,12 +20,12 @@ const (
 )
 
 type Store struct {
-	pool *pgxpool.Pool
+	Pool *pgxpool.Pool
 }
 
 func NewStore(ctx context.Context, db *pgxpool.Pool) (*Store, error) {
 	s := new(Store)
-	s.pool = db
+	s.Pool = db
 
 	if err := s.initSchema(ctx); err != nil {
 		return nil, err
@@ -36,7 +35,7 @@ func NewStore(ctx context.Context, db *pgxpool.Pool) (*Store, error) {
 }
 
 func (s *Store) initSchema(ctx context.Context) error {
-	if _, err := s.pool.Exec(ctx, DDL); err != nil {
+	if _, err := s.Pool.Exec(ctx, DDL); err != nil {
 		return err
 	}
 
@@ -57,7 +56,7 @@ func (s *Store) CreateShortenedURL(ctx context.Context, url string) (string, err
 		WHERE url = $2;
 	`
 
-	tx, err := s.pool.Begin(ctx)
+	tx, err := s.Pool.Begin(ctx)
 	if err != nil {
 		return "", err
 	}
@@ -66,8 +65,6 @@ func (s *Store) CreateShortenedURL(ctx context.Context, url string) (string, err
 
 	slug := utils.GenerateSlug()
 	if err = tx.QueryRow(ctx, sql, slug, url).Scan(&slug); err != nil {
-		fmt.Println(err)
-
 		return "", err
 	}
 
@@ -86,7 +83,7 @@ func (s *Store) GetURL(ctx context.Context, slug string) (string, error) {
 		WHERE slug = $1;
 	`
 
-	if err := s.pool.QueryRow(ctx, sql, slug).Scan(&url); err != nil {
+	if err := s.Pool.QueryRow(ctx, sql, slug).Scan(&url); err != nil {
 		return "", err
 	}
 

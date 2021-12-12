@@ -1,6 +1,8 @@
 package storage
 
-import "context"
+import (
+	"context"
+)
 
 type StorageIface interface {
 	CreateShortenedURL(ctx context.Context, url string) (string, error)

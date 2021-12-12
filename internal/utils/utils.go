@@ -30,5 +30,4 @@ func ValidateURL(u string) error {
 	}
 
 	return nil
-
 }
